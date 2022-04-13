@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from .models import Documento
+from .serializers import ModelSerializer
 
-# Create your views here.
+from rest_framework import generics
+
+class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Documento.objects.all()
+    serializer_class = ModelSerializer
