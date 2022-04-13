@@ -10,4 +10,4 @@ class Documento(models.Model):
         ordering = ['id']
     
     def __str__(self):
-        return f'Documento {self.id} - {self.descripcion}.\n\t {self.passed} - {self.reason if self.passed else ""}'
+        return f'Documento {self.id} - {self.descripcion}.\n\t Cumple con las pautas?: {"Sí" if self.passed else "No"} - {self.reason if self.passed else ""}'
