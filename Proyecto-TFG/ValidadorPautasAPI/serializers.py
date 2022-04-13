@@ -11,12 +11,7 @@ class DocumentoSerializer(serializers.ModelSerializer):
     Serializador para la clase Documento.
     """
 
-    # Campos que serializan o desrializan el objeto json
-    id          = serializers.IntegerField(read_only=True)
-    descripcion = serializers.CharField(max_length=200)
-    passed      = serializers.BooleanField(default=False)
-    reason      = serializers.CharField(max_length=300, default="")
-
+    # Tendrá todos los mismos campos que su modelo
     class Meta:
         model = Documento
-        fields = ('id', 'descripcion', 'passed', 'reason')
+        fields = "__all__"
