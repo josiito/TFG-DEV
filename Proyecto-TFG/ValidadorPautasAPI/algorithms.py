@@ -1,5 +1,3 @@
-from typing_extensions import Self
-from xmlrpc.client import Boolean
 import spacy
 
 class Algorithms():
@@ -20,7 +18,7 @@ class Algorithms():
 
         self.nlp = spacy.load("es_core_news_sm")
         self.doc = self.nlp(texto)
-    
+
     def validador_primera_pauta(self):
         """ Primera pauta: Se debería evitar el uso de palabras de contenido indeterminado """
         pass
