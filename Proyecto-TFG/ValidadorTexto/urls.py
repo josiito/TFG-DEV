@@ -5,5 +5,5 @@ from django.urls import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('ValidadorTexto.urls')),
+    path('api/', include('ValidadorPautasAPI.urls')),
 ]
