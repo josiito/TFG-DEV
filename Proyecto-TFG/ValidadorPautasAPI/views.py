@@ -13,8 +13,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# import hashlib
-# import datetime
+import hashlib
 
 from .models import Documento
 from .serializers import DocumentoSerializer
@@ -29,74 +28,94 @@ DESCRIPCIONES = [
 ]
 
 class ComprobarPrimeraPauta(APIView):
-    """
-    Clase que se encarga de comprobar si el documento cumple con la primera pauta.
-    """
+    """ Vista del análisis de la primera pauta """
 
-    def get(self, request, format=None):
-        """
-        Función que se encarga de comprobar si el documento cumple con la primera pauta.
-        """
+    def get(self, request):
+        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
             texto = request.data['documento']
 
-            # id = int(hashlib.sha256(texto.encode()).hexdigest())
-            id = 1
-            passed = self.get_first_guideline(texto)
+            id = hashlib.sha256(texto.encode()).hexdigest()
+            
+            algoritmo = Algorithms(texto)
+            passed, reason = algoritmo.validador_primera_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[0], passed = passed, reason="")
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[0], passed = passed, reason = reason)
             serializer = DocumentoSerializer(documento)
 
-            if passed:
-                return Response(serializer.data, status = status.HTTP_200_OK)
-            else:
-                return Response(status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status = status.HTTP_200_OK)
 
-        except Exception as e:
-            return Response({"data": request.data, "error": str(e)}, status = status.HTTP_400_BAD_REQUEST)
-            #return Response({"error": "No se ha recibido el documento"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def get_first_guideline(self, text):
-        return True
-
-
-    # def get(self, request, format=None):
-    #     """
-    #     Función que se encarga de comprobar si el documento cumple con la primera pauta.
-    #     """
-
-    #     # Obtenemos el documento
-    #     documento = Documento.objects.get(id=request.GET['id'])
-    #     # Obtenemos el serializador
-    #     serializer = DocumentoSerializer(documento)
-    #     # Comprobamos si el documento cumple con la primera pauta
-    #     if serializer.data['primera_pauta']:
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        except KeyError as e:
+            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarSegundaPauta(APIView):
-    """
-    Clase que se encarga de comprobar si el documento cumple con la segunda pauta.
-    """
+    """ Vista del análisis de la segunda pauta """
 
-    pass
+    def get(self, request):
+        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
+
+        try:
+            texto = request.data['documento']
+
+            id = hashlib.sha256(texto.encode()).hexdigest()
+
+            algoritmos = Algorithms(texto)
+            passed, reason, sol_propuesta = algoritmos.validador_segunda_pauta()
+
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[1], passed = passed, reason = reason)
+            serializer = DocumentoSerializer(documento)
+
+            return Response(serializer.data, status = status.HTTP_200_OK)
+
+        except KeyError as e:
+            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarTerceraPauta(APIView):
-    """
-    Clase que se encarga de comprobar si el documento cumple con la tercera pauta.
-    """
-    pass
+    """ Vista del análisis de la tercera pauta. """
+    
+    def get(self, request):
+        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
+
+        try:
+            texto = request.data['documento']
+
+            id = hashlib.sha256(texto.encode()).hexdigest()
+
+            algoritmos     = Algorithms(texto)
+            passed, reason = algoritmos.validador_tercera_pauta()
+
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[2], passed = passed, reason = reason)
+            serializer = DocumentoSerializer(documento)
+
+            return Response(serializer.data, status = status.HTTP_200_OK)
+
+        except KeyError as e:
+            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarCuartaPauta(APIView):
-    """
-    Clase que se encarga de comprobar si el documento cumple con la cuarta pauta.
-    """
+    """ Vista del análisis de la tercera pauta """
+
+    def get(self, request):
+
+        try:
+            texto = request.data['documento']
+
+            id = hashlib.sha256(texto.encode()).hexdigest()
+
+            algoritmos     = Algorithms(texto)
+            passed, reason = algoritmos.validador_cuarta_pauta()
+
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[3], passed = passed, reason = reason)
+            serializer = DocumentoSerializer(documento)
+
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        
+        except KeyError:
+            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
+
     pass
 
 class AnalisisCompleto(APIView):
-    """
-    Clase que se encarga de comprobar si el documento cumple con la quinta pauta.
-    """
+    """ Vista del análisis completo del documento """
     pass
