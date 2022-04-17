@@ -12,9 +12,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('comp/cont-indet/', views.ComprobarPrimeraPauta.as_view(), name = 'DetalleDocumento'),
-    path('comp/num-tlf/', views.ComprobarSegundaPauta.as_view(), name = 'NumeroTelefono'),
-    path('comp/form-hora/', views.ComprobarTerceraPauta.as_view(), name = 'FormateoDeHora'),
-    path('comp/conec-comp/', views.ComprobarCuartaPauta.as_view(), name = 'ConcetoresComplejos'),
-    path('analisis-completo/', views.AnalisisCompleto.as_view(), name = 'AnalisisCompleto'),
+    path('comp/cont-indet/', views.ComprobarPrimeraPauta.as_view(), name = 'Contenido Indeterminado'),
+    path('comp/num-tlf/', views.ComprobarSegundaPauta.as_view(), name = 'Numero de Telefono'),
+    path('comp/form-hora/', views.ComprobarTerceraPauta.as_view(), name = 'Formateo de la Hora'),
+    path('comp/conec-comp/', views.ComprobarCuartaPauta.as_view(), name = 'Concetores Complejos'),
+    path('analisis-completo/', views.AnalisisCompleto.as_view(), name = 'Analisis Completo'),
 ]
