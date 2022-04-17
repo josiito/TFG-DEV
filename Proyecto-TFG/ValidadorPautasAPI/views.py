@@ -118,8 +118,6 @@ class ComprobarCuartaPauta(APIView):
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
-    pass
-
 class AnalisisCompleto(APIView):
     """ Vista del análisis completo del documento """
     
