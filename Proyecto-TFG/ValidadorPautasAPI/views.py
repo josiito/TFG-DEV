@@ -34,6 +34,7 @@ class ComprobarPrimeraPauta(APIView):
         """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
+            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
             texto = request.data['documento']
 
             id = hashlib.sha256(texto.encode()).hexdigest()
@@ -56,6 +57,7 @@ class ComprobarSegundaPauta(APIView):
         """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
+            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
             texto = request.data['documento']
 
             id = hashlib.sha256(texto.encode()).hexdigest()
@@ -78,6 +80,7 @@ class ComprobarTerceraPauta(APIView):
         """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
+            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
             texto = request.data['documento']
 
             id = hashlib.sha256(texto.encode()).hexdigest()
@@ -99,6 +102,7 @@ class ComprobarCuartaPauta(APIView):
     def get(self, request):
 
         try:
+            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
             texto = request.data['documento']
 
             id = hashlib.sha256(texto.encode()).hexdigest()
@@ -118,4 +122,15 @@ class ComprobarCuartaPauta(APIView):
 
 class AnalisisCompleto(APIView):
     """ Vista del análisis completo del documento """
-    pass
+    
+    def get(self, request):
+
+        try:
+            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
+            texto = request.data['documento']
+            id = hashlib.sha256(texto.encode()).hexdigest()
+
+            return Response({ "id": id, "texto": texto}, status = status.HTTP_200_OK)
+        
+        except KeyError:
+            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
