@@ -63,7 +63,7 @@ class ComprobarSegundaPauta(APIView):
             id = hashlib.sha256(texto.encode()).hexdigest()
 
             algoritmos = Algorithms(texto)
-            passed, reason, sol_propuesta = algoritmos.validador_segunda_pauta()
+            passed, reason = algoritmos.validador_segunda_pauta()
 
             documento  = Documento(id = id, descripcion = DESCRIPCIONES[1], passed = passed, reason = reason)
             serializer = DocumentoSerializer(documento)
