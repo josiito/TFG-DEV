@@ -59,7 +59,6 @@ class Algorithms():
         """ Segunda pauta: Los numeros de telefono se deberian separar por bloques """
         
         reason = []
-        self.__show_prints__()
 
         # Bucle para recorrer los tokens del documento analizado por spaCy
         for token in self.doc:
