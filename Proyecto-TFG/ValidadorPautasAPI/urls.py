@@ -1,10 +1,10 @@
 """
 Las URIs para los distintos recursos son:
-    - Primera pauta:  /api/comp/cont-indet
-    - Segunda pauta:  /api/comp/num-tlf
-    - Tercera pauta:  /api/comp/form-hora
-    - Cuarta pauta:   /api/comp/conec-comp
-    - Quinto recurso: /api/analisis-completo
+    - Primera pauta:  /api/comp/cont-indet/
+    - Segunda pauta:  /api/comp/num-tlf/
+    - Tercera pauta:  /api/comp/form-hora/
+    - Cuarta pauta:   /api/comp/conec-comp/
+    - Quinto recurso: /api/analisis-completo/
 """
 
 from django.urls import path
