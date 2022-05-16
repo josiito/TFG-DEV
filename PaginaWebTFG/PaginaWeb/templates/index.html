@@ -1,0 +1,67 @@
+
+{% extends 'plantilla.html' %}
+
+{% block contenido %}
+
+    <h1 style="text-align: center;">ANALIZA TU DOCUMENTO O TEXTO</h1>
+    <form name="form" action="" method="post" style="text-align: center;">
+        <!-- Token csrf de Django para evitar posibles ataques para el metodo post. Uso obligatorio. -->
+        {% csrf_token %}
+
+        <!-- Botones para elegir la forma en la que se va a pasar el texto -->
+        <label for="s-documento">Voy adjuntar un documento (pdf o txt)</label>
+        <input id="s-documento" type="radio" value="documento" name="forma" checked>
+
+        <label for="s-texto">Quiero escribir el texto</label>
+        <input id="s-texto" type="radio" value="texto" name="forma">
+
+        <br>
+
+        <!-- Input dinamico. Por JS cambia a type = [texarea, file] dependiendo de la opcion -->
+        <label id="label-doc-text" for="td-field">Documento a analizar (pdf o txt):</label>
+        <input id="input-doc-text" type="file" name="td-field" accept="text/plain">
+        <textarea name="td-field" id="textarea-text" placeholder="Coloca aqui el texto que quieras analizar" 
+            cols="100" rows="15" style="resize: none;"></textarea>
+
+        <br>
+
+        <label for="lista-de-pautas">&iquest;Que pauta quiere comprobar&quest;</label>
+        <select name="lista-de-pautas" id="pautas">
+            <option value="0">Primera pauta</option>
+            <option value="1">Segunda pauta</option>
+            <option value="2">Tercera pauta</option>
+            <option value="3">Cuarta pauta</option>
+        </select>
+
+        <br>
+
+        <!-- Boton de enviar -->
+        <input type="submit" value="Enviar">
+    </form>
+
+    {% if response %}
+        {% if passed %}
+            <h1>Ha pasado la pauta correctamente</h1>
+        
+        {% else %}
+            <h1>No ha pasado la pauta:</h1>
+
+            <ul>
+                {% for reason in reasons %}
+                    <li>{{ reason }}</li>
+                {% endfor %}
+            </ul>
+        
+        {% endif %}
+
+        {% if error %}
+            <h1>Ha ocurrido una desgracia PACO ...</h1>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- {% if response %}
+        <h1>{{ response }}</h1>
+    {% endif %} -->
+
+{% endblock contenido %}
