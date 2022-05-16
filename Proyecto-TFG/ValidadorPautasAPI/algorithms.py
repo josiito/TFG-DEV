@@ -1,5 +1,5 @@
+from operator import index
 from pickle import NONE
-from xmlrpc.client import boolean
 from spacy.matcher import Matcher
 
 import spacy
@@ -31,7 +31,8 @@ class Algorithms():
     ]
 
     def __init__(self, texto: str = NONE):
-        if texto == NONE:
+        # Si el contenido del texto es vacio o no esta instanciado, se lanza un error
+        if texto == NONE or not texto:
             raise TypeError('No se ha encontrado ningún contenido de texto.')
 
         self.nlp = spacy.load("es_core_news_sm")
@@ -57,17 +58,16 @@ class Algorithms():
     def validador_segunda_pauta(self):
         """ Segunda pauta: Los numeros de telefono se deberian separar por bloques """
         
-        reason: list    = []
-        correccion: str = ''
+        reason = []
+        self.__show_prints__()
 
         # Bucle para recorrer los tokens del documento analizado por spaCy
         for token in self.doc:
             # Obtenemos el token que es un número
             if token.like_num:
-                num: str = token.text
+                num = token.text
                 # Comprobamos que sea un número de teléfono válido y sin separación de bloques
                 if len(num) == 9:
-                    sol_prop: str = f'{num[0:3]} {num[3:5]} {num[5:7]} {num[7:9]}'
                     reason.append('El número de telefono {} debería escribirse por bloques'.format(num))
 
         # Si no cumple con la pauta, se devuelve una posible corección
