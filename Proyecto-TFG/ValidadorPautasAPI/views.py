@@ -9,20 +9,22 @@ se hará de la siguiente manera:
 De esta manera tendremos un código más limpio, ordenado y escalable.
 """
 
+from xml.sax.handler import property_interning_dict
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import hashlib
+import json
 
-from .models import Documento
+from .models import Documento, TextoAnalizado
 from .serializers import DocumentoSerializer
 from .algorithms import Algorithms
 
 DESCRIPCIONES = [
     "1 - Se debería evitar el uso de palabras de contenido indeterminado",
     "2 - Los numeros de telefono se deberian separar por bloques",
-    "3 - Se debera escribir la hora en formato 24h",
+    "3 - Evitar escribir la hora en formato 24h",
     "4 - Evitar el uso de conectores complejos entre oraciones",
     "Analisis completo del documento"
 ]
@@ -30,18 +32,18 @@ DESCRIPCIONES = [
 class ComprobarPrimeraPauta(APIView):
     """ Vista del análisis de la primera pauta """
 
-    def get(self, request):
-        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
+    def post(self, request):
+        """ Petición: POST - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
-            texto = request.data['documento']
+            texto = json.loads(request.data).get('documento')
 
             id = hashlib.sha256(texto.encode()).hexdigest()
             
             algoritmo = Algorithms(texto)
             passed, reason = algoritmo.validador_primera_pauta()
-
+            
             documento  = Documento(id = id, descripcion = DESCRIPCIONES[0], passed = passed, reason = reason)
             serializer = DocumentoSerializer(documento)
 
@@ -53,19 +55,19 @@ class ComprobarPrimeraPauta(APIView):
 class ComprobarSegundaPauta(APIView):
     """ Vista del análisis de la segunda pauta """
 
-    def get(self, request):
-        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
+    def post(self, request):
+        """ Petición: POST - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
-            texto = request.data['documento']
+            texto = json.loads(request.data).get('documento')
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
             algoritmos = Algorithms(texto)
-            passed, reason, sol_propuesta = algoritmos.validador_segunda_pauta()
+            passed, reason = algoritmos.validador_segunda_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[1], passed = passed, reason = reason)
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[1], passed = passed, reason = list(reason))
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
@@ -76,12 +78,12 @@ class ComprobarSegundaPauta(APIView):
 class ComprobarTerceraPauta(APIView):
     """ Vista del análisis de la tercera pauta. """
     
-    def get(self, request):
-        """ Petición: GET - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
+    def post(self, request):
+        """ Petición: POST - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
-            texto = request.data['documento']
+            texto = json.loads(request.data).get('documento')
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
@@ -97,13 +99,13 @@ class ComprobarTerceraPauta(APIView):
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarCuartaPauta(APIView):
-    """ Vista del análisis de la tercera pauta """
+    """ Petición: POST - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
 
-    def get(self, request):
+    def post(self, request):
 
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
-            texto = request.data['documento']
+            texto = json.loads(request.data).get('documento')
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
@@ -111,6 +113,8 @@ class ComprobarCuartaPauta(APIView):
             passed, reason = algoritmos.validador_cuarta_pauta()
 
             documento  = Documento(id = id, descripcion = DESCRIPCIONES[3], passed = passed, reason = reason)
+            documento.save()
+
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
@@ -121,7 +125,7 @@ class ComprobarCuartaPauta(APIView):
 class AnalisisCompleto(APIView):
     """ Vista del análisis completo del documento """
     
-    def get(self, request):
+    def post(self, request):
 
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
