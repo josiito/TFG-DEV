@@ -11,7 +11,10 @@ class DocumentoSerializer(serializers.ModelSerializer):
     Serializador para la clase Documento.
     """
 
+    # Las razones sera una lista.
+    reason = serializers.ListField()
+
     # Tendrá todos los mismos campos que su modelo
     class Meta:
         model = Documento
-        fields = "__all__"
+        fields = ('id', 'descripcion', 'passed', 'reason')
