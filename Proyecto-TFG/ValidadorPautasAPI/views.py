@@ -117,8 +117,6 @@ class ComprobarCuartaPauta(APIView):
             passed, reason = algoritmos.validador_cuarta_pauta()
 
             documento  = Documento(id = id, descripcion = DESCRIPCIONES[CUARTA_PAUTA], passed = passed, reason = reason)
-            documento.save()
-
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
