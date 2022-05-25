@@ -15,5 +15,4 @@ urlpatterns = [
     path('comp/num-tlf/', views.ComprobarSegundaPauta.as_view(), name = 'Numero de Telefono'),
     path('comp/form-hora/', views.ComprobarTerceraPauta.as_view(), name = 'Formateo de la Hora'),
     path('comp/conec-comp/', views.ComprobarCuartaPauta.as_view(), name = 'Conectores Complejos'),
-    path('analisis-completo/', views.AnalisisCompleto.as_view(), name = 'Analisis Completo'),
 ]
