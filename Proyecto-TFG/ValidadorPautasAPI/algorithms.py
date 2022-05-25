@@ -1,9 +1,7 @@
-from operator import index
 from pickle import NONE
 from spacy.matcher import Matcher
 
 import spacy
-import threading
 
 class Algorithms():
     """ Clase que recogera los algoritmos de PLN para comprobar el cumplimiento de las cuatro pautas que se han desarrollado. """
@@ -106,20 +104,6 @@ class Algorithms():
         # self.print_all_tokens()
         
         return len(matches) == 0, reason
-
-    def analisis_completo(self):
-        """ Se analizara el contenido del documento completo que se pasara como parametro """
-        # Se crean 4 threads para paralelizar el trabajo del validador completo
-        threads = [
-            threading.Thread(target=self.validador_primera_pauta),
-            threading.Thread(target=self.validador_segunda_pauta),
-            threading.Thread(target=self.validador_tercera_pauta),
-            threading.Thread(target=self.validador_cuarta_pauta),
-        ]
-
-        # Se inician los threads
-        for thread in threads:
-            thread.start()
             
     def print_all_tokens(self):
         for token in self.doc:
