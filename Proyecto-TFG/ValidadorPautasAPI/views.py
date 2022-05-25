@@ -121,18 +121,3 @@ class ComprobarCuartaPauta(APIView):
         
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
-
-class AnalisisCompleto(APIView):
-    """ Vista del análisis completo del documento """
-    
-    def post(self, request):
-
-        try:
-            # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
-            texto = request.data['documento']
-            id = hashlib.sha256(texto.encode()).hexdigest()
-
-            return Response({ "id": id, "texto": texto}, status = status.HTTP_200_OK)
-        
-        except KeyError:
-            return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
