@@ -2,14 +2,13 @@
 Las vistas de Django que se van a emplear serán vistas basadas en clases.
 Esto implica que los metodos vendran bien definidos (cada metodo tendrá 
 como nombre el verbo HTTP que implemente) y para que estén bien enrutadas
-se hará de la siguiente manera:
+se hará de la siguiente manera en el archivo urls.py:
 
 >> path('<ruta>/', views.<nombre_vista>.as_view())
 
 De esta manera tendremos un código más limpio, ordenado y escalable.
 """
 
-from xml.sax.handler import property_interning_dict
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,9 +16,14 @@ from rest_framework.views import APIView
 import hashlib
 import json
 
-from .models import Documento, TextoAnalizado
+from .models import Documento
 from .serializers import DocumentoSerializer
 from .algorithms import Algorithms
+
+PRIMERA_PAUTA = 0;
+SEGUNDA_PAUTA = 1;
+TERCERA_PAUTA = 2;
+CUARTA_PAUTA  = 3;
 
 DESCRIPCIONES = [
     "1 - Se debería evitar el uso de palabras de contenido indeterminado",
@@ -44,12 +48,12 @@ class ComprobarPrimeraPauta(APIView):
             algoritmo = Algorithms(texto)
             passed, reason = algoritmo.validador_primera_pauta()
             
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[0], passed = passed, reason = reason)
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[PRIMERA_PAUTA], passed = passed, reason = reason)
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
 
-        except KeyError as e:
+        except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarSegundaPauta(APIView):
@@ -67,12 +71,12 @@ class ComprobarSegundaPauta(APIView):
             algoritmos = Algorithms(texto)
             passed, reason = algoritmos.validador_segunda_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[1], passed = passed, reason = list(reason))
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[SEGUNDA_PAUTA], passed = passed, reason = list(reason))
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
 
-        except KeyError as e:
+        except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarTerceraPauta(APIView):
@@ -90,12 +94,12 @@ class ComprobarTerceraPauta(APIView):
             algoritmos     = Algorithms(texto)
             passed, reason = algoritmos.validador_tercera_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[2], passed = passed, reason = reason)
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[TERCERA_PAUTA], passed = passed, reason = reason)
             serializer = DocumentoSerializer(documento)
 
             return Response(serializer.data, status = status.HTTP_200_OK)
 
-        except KeyError as e:
+        except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarCuartaPauta(APIView):
@@ -112,7 +116,7 @@ class ComprobarCuartaPauta(APIView):
             algoritmos     = Algorithms(texto)
             passed, reason = algoritmos.validador_cuarta_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[3], passed = passed, reason = reason)
+            documento  = Documento(id = id, descripcion = DESCRIPCIONES[CUARTA_PAUTA], passed = passed, reason = reason)
             documento.save()
 
             serializer = DocumentoSerializer(documento)
