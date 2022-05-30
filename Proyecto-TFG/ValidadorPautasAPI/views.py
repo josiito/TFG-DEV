@@ -45,6 +45,7 @@ class ComprobarPrimeraPauta(APIView):
 
             id = hashlib.sha256(texto.encode()).hexdigest()
             
+            # Puede dar error al inicializar el objeto Algorithms
             algoritmo = Algorithms(texto)
             passed, reason = algoritmo.validador_primera_pauta()
             
@@ -55,6 +56,8 @@ class ComprobarPrimeraPauta(APIView):
 
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
+        except TypeError as e:
+            return Response({"error": e}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarSegundaPauta(APIView):
     """ Vista del análisis de la segunda pauta """
@@ -68,6 +71,7 @@ class ComprobarSegundaPauta(APIView):
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
+            # Puede dar error al inicializar el objeto Algorithms (TypeError)
             algoritmos = Algorithms(texto)
             passed, reason = algoritmos.validador_segunda_pauta()
 
@@ -78,6 +82,8 @@ class ComprobarSegundaPauta(APIView):
 
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
+        except TypeError as e:
+            return Response({"error": e}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarTerceraPauta(APIView):
     """ Vista del análisis de la tercera pauta. """
@@ -91,6 +97,7 @@ class ComprobarTerceraPauta(APIView):
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
+            # Puede dar error al inicializar el objeto Algorithms
             algoritmos     = Algorithms(texto)
             passed, reason = algoritmos.validador_tercera_pauta()
 
@@ -101,6 +108,8 @@ class ComprobarTerceraPauta(APIView):
 
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
+        except TypeError:
+            return Response({"error": "No se ha encontrado ningun texto."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarCuartaPauta(APIView):
     """ Petición: POST - Response -> El objeto serializado si ha tenido exito. Error e.o.c """
@@ -113,6 +122,7 @@ class ComprobarCuartaPauta(APIView):
 
             id = hashlib.sha256(texto.encode()).hexdigest()
 
+            # Puede dar error al inicializar el objeto Algorithms
             algoritmos     = Algorithms(texto)
             passed, reason = algoritmos.validador_cuarta_pauta()
 
@@ -123,3 +133,5 @@ class ComprobarCuartaPauta(APIView):
         
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
+        except TypeError:
+            return Response({"error": "No se ha encontrado ningun texto."}, status = status.HTTP_400_BAD_REQUEST)
