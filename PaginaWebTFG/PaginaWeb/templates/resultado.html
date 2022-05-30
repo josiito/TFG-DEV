@@ -1,0 +1,41 @@
+{% extends 'plantilla.html' %}
+{% load static %}
+
+{% block contenido %}
+
+    {% if passed %}
+        <div class="center-items">
+            <h1>No hay nada que corregir</h1>
+            <img src="{% static 'images/comprobado.png' %}" alt="checked" class="icono">
+        </div>
+    
+    {% else %}
+        <div class="center-items">
+            <h1>No ha pasado la pauta</h1>
+            <img src="{% static 'images/cancelar.png' %}" alt="checked" class="icono">
+        </div>
+
+        <hr>
+
+        <div class="center-items">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pauta</th>
+                        <th>Palabra/Expresion incorrecta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reason in reasons %}
+                        <tr>
+                            <td>{{ pauta }}</td>
+                            <td>{{ reason }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    {% endif %}
+
+{% endblock contenido %}
