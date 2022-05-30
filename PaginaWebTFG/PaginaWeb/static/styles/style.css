@@ -1,14 +1,26 @@
 @import url('style-header.css');
 
+.without-dott {
+    list-style-type: square;
+}
+
+.center-items {
+    display:flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.icono {
+    width: 30px; 
+    height: 30px; 
+    margin: 20px 10px;
+}
+
 body {
     margin: 0 auto;
     width: 75%;
     font-family: 'Lato', sans-serif;
     text-decoration: none;
-}
-
-.without-dott {
-    list-style-type: square;
 }
 
 form {
@@ -35,4 +47,21 @@ input[type=submit] {
 
 input[type=submit]:hover {
     background-color: #ccc;
+}
+
+table {
+    border-spacing: 10px 10px;
+}
+
+th {
+    letter-spacing: 2px;
+}
+  
+td {
+    letter-spacing: 1px;
+}
+  
+tbody td {
+    text-align: center;
+    border-spacing: 20px;
 }
