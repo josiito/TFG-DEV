@@ -36,9 +36,6 @@ def resultado(request: HttpRequest):
         # y la url de la peticion con el valor del campo anterior (mirar html).
         pauta = request.POST['lista-de-pautas']
         url_peticion = PAUTAS_URL[int(pauta)]
-
-        print('pauta: ', pauta)
-        print('url_peticion: ', url_peticion)
         
         # Se ha enviado un fichero para analizar su contenido
         if (content_type := request.content_type) == 'multipart/form-data':
@@ -46,11 +43,16 @@ def resultado(request: HttpRequest):
             texto = file.read().decode('utf-8')
 
             response = requests.post(url_peticion, json = json.dumps({'documento': texto}))
-            print('response: ', response.text)
-            print('response.status_code: ', response.status_code)
+            result = json.loads(response.text)
 
             if response.status_code == 200:
-                result = json.loads(response.text)
+                if result['correccion']:
+                    return render(request, 'resultado.html', context = {
+                        'passed': result['passed'],
+                        'reasons': result['reason'],
+                        'pauta': PAUTA_DESC[int(pauta)],
+                        'correccion': result['correccion'],
+                    })
 
                 return render(request, 'resultado.html', context = { 
                     'passed': result['passed'],
@@ -58,24 +60,37 @@ def resultado(request: HttpRequest):
                     'pauta': PAUTA_DESC[int(pauta)],
                 })
             else:
-                return render(request, 'resultado.html', context = {'error': 'No se ha procesado correctamente su peticion'})
+                return render(request, 'resultado.html', context={'error': result['error']})
 
         # Se ha enviado texto plano para analizar su contenido
         if content_type == 'application/x-www-form-urlencoded':
             text_content = request.POST['td-field']
-            response = requests.post(url_peticion, json=json.dumps({'documento': text_content}))
-            print('response: ', response.text)
-            print('response.status_code: ', response.status_code)
-            if response.status_code == 200:
-                result = json.loads(response.text)
 
-                return render(request, 'resultado.html', context = {
-                    'passed': result['passed'], 
-                    'reasons': result['reason'],
-                    'pauta': PAUTA_DESC[int(pauta)],
-                })
+            response = requests.post(url_peticion, json=json.dumps({'documento': text_content}))
+            result = json.loads(response.text)
+
+            if response.status_code == 200:
+                if result['passed']:
+                    return render(request, 'resultado.html', context={
+                        'passed': result['passed'],
+                    })
+                else:
+                    if result['correccion']:
+                        return render(request, 'resultado.html', context = {
+                            'passed': result['passed'],
+                            'reasons': result['reason'],
+                            'pauta': PAUTA_DESC[int(pauta)],
+                            'correccion': result['correccion'],
+                        })
+
+                    return render(request, 'resultado.html', context = { 
+                        'passed': result['passed'],
+                        'reasons': result['reason'],
+                        'pauta': PAUTA_DESC[int(pauta)],
+                    })
+
             else:
-                return render(request, 'resultado.html', context={'error': 'No se ha procesado correctamente su peticion'})
+                return render(request, 'resultado.html', context={'error': result['error']})
     
     # Caso de get
     return render(request, 'resultado.html')
