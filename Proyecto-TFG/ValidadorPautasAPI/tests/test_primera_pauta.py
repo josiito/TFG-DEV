@@ -1,6 +1,5 @@
 from django.test import TestCase
 from os import path, remove
-
 # from ..algorithms import Algorithms
 
 import csv
@@ -24,7 +23,7 @@ class TestPrimeraPauta(TestCase):
                     if( self.CONCORDANCIA in line ):
                         isText = True
                     if( isText ):
-                        writer.writerow({ 'Prueba': i, 'Texto': line })
+                        writer.writerow({ 'Prueba': i, 'Texto': ["a", "b", "c"] })
                         i += 1
                     if( self.REFERENCIA in line ):
                         isText = False
@@ -32,7 +31,7 @@ class TestPrimeraPauta(TestCase):
     def tearDown(self):
         """ Elimina un archivo csv despues de hacer todos los tests """
         remove(f'{self.PATH}/data/horas.csv') if path.exists(f'{self.PATH}/data/horas.csv') else None
-    
+
     def test_primera_pauta0(self):
         """ Test de la primera pauta: Se debería evitar el uso de palabras de contenido indeterminado """
         # algoritmos = Algorithms('Hay algo que quiero decirte')
