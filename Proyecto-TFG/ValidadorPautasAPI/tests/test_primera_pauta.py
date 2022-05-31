@@ -23,7 +23,7 @@ class TestPrimeraPauta(TestCase):
                     if( self.CONCORDANCIA in line ):
                         isText = True
                     if( isText ):
-                        writer.writerow({ 'Prueba': i, 'Texto': ["a", "b", "c"] })
+                        writer.writerow({ 'Prueba': i, 'Texto': line.strip() })
                         i += 1
                     if( self.REFERENCIA in line ):
                         isText = False
