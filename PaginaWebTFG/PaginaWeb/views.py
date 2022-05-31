@@ -5,16 +5,16 @@ from django.core.files import uploadedfile
 import json
 import requests
 
-BASE_URL   = 'http://127.0.0.1:8001/api/'
+BASE_URL_API   = 'http://127.0.0.1:8001/api/'
 PAUTAS_URL = [ 
-    BASE_URL + 'comp/cont-indet/',
-    BASE_URL + 'comp/num-tlf/',
-    BASE_URL + 'comp/form-hora/',
-    BASE_URL + 'comp/conec-comp/',
+    BASE_URL_API + 'comp/cont-indet/',
+    BASE_URL_API + 'comp/num-tlf/',
+    BASE_URL_API + 'comp/form-hora/',
+    BASE_URL_API + 'comp/conec-comp/',
 ]
 
 PAUTA_DESC = [
-    'Palabra de contenido Indeterminado',
+    'Palabra de contenido indeterminado',
     'Numero de telefono mal formateado',
     'Formato de hora incorrecta',
     'Conectores complejos',
