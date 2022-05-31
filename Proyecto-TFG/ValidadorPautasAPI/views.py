@@ -68,22 +68,27 @@ class ComprobarSegundaPauta(APIView):
         try:
             # Aqui es donde podemos tener 'KeyError' si no se pasa el documento como clave en el body de la peticion
             texto = json.loads(request.data).get('documento')
-
             id = hashlib.sha256(texto.encode()).hexdigest()
-
+            
             # Puede dar error al inicializar el objeto Algorithms (TypeError)
             algoritmos = Algorithms(texto)
-            passed, reason = algoritmos.validador_segunda_pauta()
+            passed, reason, correccion = algoritmos.validador_segunda_pauta()
 
-            documento  = Documento(id = id, descripcion = DESCRIPCIONES[SEGUNDA_PAUTA], passed = passed, reason = list(reason))
-            serializer = DocumentoSerializer(documento)
+            objeto = {
+                "id": id,
+                "descripcion": DESCRIPCIONES[SEGUNDA_PAUTA],
+                "passed": passed,
+                "reason": reason,
+                "correccion": correccion
+            }
 
-            return Response(serializer.data, status = status.HTTP_200_OK)
+            # Se devuelve el objeto en la respuesta. La serializacion es automatica con los objetos de python
+            return Response(objeto, status = status.HTTP_200_OK)
 
         except KeyError:
             return Response({"error": "No se ha recibido el texto a analizar."}, status = status.HTTP_400_BAD_REQUEST)
-        except TypeError as e:
-            return Response({"error": e}, status = status.HTTP_400_BAD_REQUEST)
+        except TypeError:
+            return Response({"error": "Existe un error en el procesamiento de su solicitud. Vuelva a intentarlo."}, status = status.HTTP_400_BAD_REQUEST)
 
 class ComprobarTerceraPauta(APIView):
     """ Vista del análisis de la tercera pauta. """
