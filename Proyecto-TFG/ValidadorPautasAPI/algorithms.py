@@ -1,4 +1,3 @@
-from pickle import NONE
 from spacy.matcher import Matcher
 
 import spacy
@@ -28,9 +27,9 @@ class Algorithms():
         ],
     ]
 
-    def __init__(self, texto: str = NONE):
+    def __init__(self, texto: str = None):
         # Si el contenido del texto es vacio o no esta instanciado, se lanza un error
-        if texto == NONE or not texto:
+        if texto == None or not texto:
             raise TypeError('No se ha encontrado ningún contenido de texto.')
 
         self.nlp = spacy.load("es_core_news_sm")
@@ -56,21 +55,47 @@ class Algorithms():
     def validador_segunda_pauta(self):
         """ Segunda pauta: Los numeros de telefono se deberian separar por bloques """
         
-        reason = []
+        reasons = []
 
-        # Bucle para recorrer los tokens del documento analizado por spaCy
-        for token in self.doc:
-            # Obtenemos el token que es un número
-            if token.like_num:
-                num = token.text
-                # Comprobamos que sea un número de teléfono válido y sin separación de bloques
-                if len(num) == 9:
-                    reason.append('El número de telefono {} debería escribirse por bloques'.format(num))
+        # Obtengo las oraciones que tengan la palabra 'teléfono', 'número' o 'móvil. Si las tienen las analizo mas adelante.
+        sentences_map    = map(
+            lambda sentence: sentence if sentence.text.lower().find('teléfono') != -1 or 
+                                        sentence.text.lower().find('número')    != -1 or 
+                                        sentence.text.lower().find('móvil')     != -1 else None, 
+            self.doc.sents
+        )
+        # Elimino los None de la lista de oraciones (por la condicion else).
+        sentences_filter = list(filter(lambda sentence: sentence != None, sentences_map))
+
+        # Si solo se ha encontrado una oracion con la palabra 'teléfono', 'número' o 'móvil', se analiza sola
+        if  0 < len(sentences_filter) <= 1:
+            for token in sentences_filter[0]:
+                if token.like_num and len(token.text) == 9:
+                    if token.text not in reasons:
+                        reasons.append(token.text)
+
+        # Se se han encontrado mas, se encuentran correlaciones entre las oraciones i e i+1 y se analizan ambas si su ratio de relacion es mayor o igual que 0.4
+        # Este indice se ha obtenido a partir de pruebas.
+        else:
+            i = 0
+            while i+1 < len(sentences_filter):
+                similarity = sentences_filter[i].similarity(sentences_filter[i+1])
+                if round(similarity, 2) >= 0.40:
+                    docs = [sentences_filter[i], sentences_filter[i+1]]
+                    for doc in docs:
+                        for token in doc:
+                            if token.like_num and len(token.text) == 9:
+                                if token.text not in reasons:
+                                    reasons.append(token.text)
+                i += 1
 
         # Si no cumple con la pauta, se devuelve una posible corección
-        # correccion = self.doc.text.replace(num, sol_prop)
+        correccion = []
+        if len(reasons) > 0:
+            for reason in reasons:
+                correccion.append(f'{reason[0:2]}-{reason[2:5]}-{reason[5:7]}-{reason[7:9]}')
         
-        return len(reason) == 0, reason #, correccion
+        return len(reasons) == 0, reasons, correccion
 
     def validador_tercera_pauta(self):
         """ Tercera pauta: Evitar escribir la hora en formato 24h """
