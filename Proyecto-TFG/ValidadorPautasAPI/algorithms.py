@@ -1,21 +1,46 @@
 from spacy.matcher import Matcher
-
 import spacy
 
 class Algorithms():
     """ Clase que recogera los algoritmos de PLN para comprobar el cumplimiento de las cuatro pautas que se han desarrollado. """
 
-    HORAS = {
-        'madrugada': list([ hora for hora in range(1, 6)   ]),
-        'mañana'   : list([ hora for hora in range(6, 13)  ]),
-        'tarde'    : list([ hora for hora in range(12, 19) ]),
-        'noche'    : list([ hora for hora in range(18, 25) ]),
-    }
-
     PATRONES_PRIMERA_PAUTA = [
         [ { "POS": "DET", "DEP": "det" } , { "POS": "NOUN", "DEP": { "IN": [ "nsubj", "obj" ] } } ],
         [ { "MORPH": { "IS_SUPERSET": [ "PronType=Ind" ] } } ]
     ]
+
+    # ------------------------------------------------ #
+    # Patrones de la tercera pauta
+    PATRON_HORA_SIMPLE = [
+        [ 
+            { 'POS': { 'IN': [ 'NOUN', 'NUM' ] }, 'MORPH': { 'IS_SUBSET': [ 'NumForm=Digit', 'NumType=Card', 'AdvType=Tim' ] } } 
+        ], # ej: a las 20:45
+    ]
+    # Patron que identifica frases como: 10 minutos despues/antes de las 12 [ y media/cuarto/diez de la  ]
+    PATRON_HORA_COMPLEX = [
+        [
+            { 'POS': 'NUM'  }, # ej: cualquier numero (serian los minutos)
+            { 'LEMMA': 'minuto',  'OP': '?' }, # ej: minutos
+            { 'POS': 'ADV', 'DEP': 'advmod' }, # ej: despues o antes
+            { 'ORTH': 'de'  },
+            { 'ORTH': 'las' },
+            { 'POS': 'NUM'  }, # ej: cualquier numero (serian las horas)
+        ],
+        [
+            { 'POS': 'NUM'  }, # ej: cualquier numero (serian los minutos)
+            { 'LEMMA': 'minuto',  'OP': '?' }, # ej: minutos
+            { 'POS': 'ADV', 'DEP': 'advmod' }, # ej: despues o antes
+            { 'ORTH': 'de'  },
+            { 'ORTH': 'las' },
+            { 'POS': 'NUM'  }, # ej: cualquier numero (serian las horas)
+            { 'ORTH': 'y', 'OP': '?'    }, # puede aparecer o no
+            { 'POS': 'NUM', 'OP': '?'   }, # ej: (y) media, cuarto o diez 
+            { 'LEMMA': 'de', 'OP': '?'  },
+            { 'ORTH': 'la', 'OP': '?'   },
+            { 'POS': 'NOUN', 'DEP': 'nmod', 'OP': '?' }, # ej: mañana, tarde o
+        ]
+    ]
+    # ------------------------------------------------ #
 
     PATRONES_CUARTA_PAUTA = [
         [ { "POS": "ADP"  }, { "POS": "NOUN" }                    ], # e.j. Sin embargo
@@ -28,10 +53,6 @@ class Algorithms():
     ]
 
     def __init__(self, texto: str = None):
-        # Si el contenido del texto es vacio o no esta instanciado, se lanza un error
-        if texto == None or not texto:
-            raise TypeError('No se ha encontrado ningún contenido de texto.')
-
         self.nlp = spacy.load("es_core_news_sm")
         self.doc = self.nlp(texto)
         
@@ -62,8 +83,8 @@ class Algorithms():
             lambda sentence: sentence if sentence.text.lower().find('teléfono') != -1 or 
                                         sentence.text.lower().find('número')    != -1 or 
                                         sentence.text.lower().find('móvil')     != -1 else None, 
-            self.doc.sents
-        )
+            self.doc.sents)
+
         # Elimino los None de la lista de oraciones (por la condicion else).
         sentences_filter = list(filter(lambda sentence: sentence != None, sentences_map))
 
@@ -100,19 +121,35 @@ class Algorithms():
     def validador_tercera_pauta(self):
         """ Tercera pauta: Evitar escribir la hora en formato 24h """
 
-        reason: list = []
+        self.matcher.add('PATRON_SIMPLE', self.PATRON_HORA_SIMPLE)
+        self.matcher.add('PATRON_COMPLEX', self.PATRON_HORA_COMPLEX, on_match=self.eliminar_elementos_repetidos)
+        
+        matches = self.matcher(self.doc)
+        tokens  = [ self.doc[start:end] for _, start, end in matches ]
+        
+        mapping = dict()
+        for match_id, start, end in matches:
+            mapping[match_id] = self.doc[start:end].text
+            print(mapping[match_id])
 
-        for token in self.doc:
-            
-            # Si el token es un token numérico o un token objeto, se analiza
-            if token.pos_ in ['NUM', 'NOUN']:
-                hora = token.text.split(':')
+        result, correccion = [], []
+        for _, case in enumerate(tokens):
+            if len( formato := case.text.split(':') ) == 2:
+                # En este caso la hora esta escrito en formato 12h y no 24h
+                if ( int(formato[0]) - 12 ) <= 0:
+                    pass
+                else:
+                    result.append(case.text)
+                    correccion.append(f'{int(formato[0]) - 12}:{formato[1]}')
+            else:
+                tokens_in_span = [ token for token in case ]
+                if len(tokens_in_span) > 1:
+                    result.append(case.text)
 
-                # Se comprueba el formato hh:mm. Si lo cumple, no puede satisfacer la pauta
-                if len(hora) == 2 and int(hora[0]) - 12 > 0:
-                    reason.append('El numero {} esta escrito en formato 24h'.format(token.text))
+        self.matcher.remove('PATRON_SIMPLE')
+        self.matcher.remove('PATRON_COMPLEX')
 
-        return len(reason) == 0, reason # , correccion
+        return len(result) == 0, result, correccion
 
     def validador_cuarta_pauta(self):
         """ Cuarta pauta: Evitar el uso de conectores complejos entre oraciones """
@@ -125,11 +162,9 @@ class Algorithms():
         
         # Se elimina el patron de la cuarta pauta para evitar colisiones indeseadas
         self.matcher.remove('PATRONES_CUARTA_PAUTA')
-
-        # self.print_all_tokens()
         
-        return len(matches) == 0, reason
-            
+        return len(reason) == 0, reason
+
     def print_all_tokens(self):
         for token in self.doc:
             print('+ ------------------------------------------- +')
@@ -137,3 +172,22 @@ class Algorithms():
             print('pos definition: {}'.format(spacy.explain(token.pos_)))
             print('definicion de dependencia: {}'.format(spacy.explain(token.dep_)))
             print('+ ------------------------------------------- +\n')
+    
+    # Recibe como parametros: matcher, doc, i, matches
+    def eliminar_elementos_repetidos(self, matcher, doc, i, matches):
+        """ En cada match elimina de la lista matches el caso anterior si los identificadores son iguales (repetidos) """
+        match_id, _, _ = matches[i]
+        if i >= 1:
+            match_id_last, _, _ = matches[i-1]
+            if match_id == match_id_last:
+                del matches[i-i]
+    
+    def eliminar_repetidos(self, lista_a ,lista_b) -> list:
+        lista_res = []
+        for item in lista_a:
+            for item_rep in lista_b:
+                if item in item_rep:
+                    continue
+                else:
+                    lista_res.append(item)
+        return lista_res
