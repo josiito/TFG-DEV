@@ -40,25 +40,30 @@ def resultado(request: HttpRequest):
         # Se ha enviado un fichero para analizar su contenido
         if (content_type := request.content_type) == 'multipart/form-data':
             file: uploadedfile = request.FILES['td-field']
-            texto = file.read().decode('utf-8')
+            text_content = file.read().decode('utf-8')
 
-            response = requests.post(url_peticion, json = json.dumps({'documento': texto}))
+            response = requests.post(url_peticion, json={'documento': text_content})
             result = json.loads(response.text)
 
             if response.status_code == 200:
-                if result['correccion']:
-                    return render(request, 'resultado.html', context = {
+                try:
+                    return render(request, 'resultado.html', 
+                    context = {
                         'passed': result['passed'],
                         'reasons': result['reason'],
+                        'descripcion': result['descripcion'],
                         'pauta': PAUTA_DESC[int(pauta)],
                         'correccion': result['correccion'],
                     })
+                except KeyError:
+                    return render(request, 'resultado.html', 
+                    context = { 
+                        'passed': result['passed'],
+                        'reasons': result['reason'],
+                        'descripcion': result['descripcion'],
+                        'pauta': PAUTA_DESC[int(pauta)],
+                    })
 
-                return render(request, 'resultado.html', context = { 
-                    'passed': result['passed'],
-                    'reasons': result['reason'],
-                    'pauta': PAUTA_DESC[int(pauta)],
-                })
             else:
                 return render(request, 'resultado.html', context={'error': result['error']})
 
@@ -66,7 +71,7 @@ def resultado(request: HttpRequest):
         if content_type == 'application/x-www-form-urlencoded':
             text_content = request.POST['td-field']
 
-            response = requests.post(url_peticion, json=json.dumps({'documento': text_content}))
+            response = requests.post(url_peticion, json={'documento': text_content})
             result = json.loads(response.text)
 
             if response.status_code == 200:
@@ -75,19 +80,21 @@ def resultado(request: HttpRequest):
                         'passed': result['passed'],
                     })
                 else:
-                    if result['correccion']:
+                    try:
                         return render(request, 'resultado.html', context = {
                             'passed': result['passed'],
                             'reasons': result['reason'],
-                            'pauta': PAUTA_DESC[int(pauta)],
+                            'descripcion': result['descripcion'],
                             'correccion': result['correccion'],
+                            'pauta': PAUTA_DESC[int(pauta)],
                         })
-
-                    return render(request, 'resultado.html', context = { 
-                        'passed': result['passed'],
-                        'reasons': result['reason'],
-                        'pauta': PAUTA_DESC[int(pauta)],
-                    })
+                    except KeyError:
+                        return render(request, 'resultado.html', context = { 
+                            'passed': result['passed'],
+                            'reasons': result['reason'],
+                            'descripcion': result['descripcion'],
+                            'pauta': PAUTA_DESC[int(pauta)],
+                        })
 
             else:
                 return render(request, 'resultado.html', context={'error': result['error']})
