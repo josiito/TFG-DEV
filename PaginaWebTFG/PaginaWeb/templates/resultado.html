@@ -20,8 +20,13 @@
                     <h1>No ha pasado la pauta</h1>
                     <img src="{% static 'images/cancelar.png' %}" alt="checked" class="icono">
                 </div>
+                {% if descripcion %}
+                    <div class="center-items">
+                        <h2>Pauta {{ descripcion }}</h2>
+                    </div>
+                {% endif %}
 
-                <hr>
+                <hr style="width: 50%;"><br>
 
                 <div class="center-items">
                     <table>
@@ -44,13 +49,13 @@
                         </tbody>
                     </table>
 
-                    <table style="width: 300px;">
-                        {% if pauta %}
-                            <caption>
-                                <strong>Posibles correcciones</strong>
-                            </caption>
-                        {% endif %}
-                        {% if correccion %}
+                    {% if correccion %}
+                        <table style="width: 300px;">
+                            {% if pauta %}
+                                <caption>
+                                    <strong>Posibles correcciones</strong>
+                                </caption>
+                            {% endif %}
                             <thead>
                                 <tr>
                                     <th>Posible correcci&oacute;n</th>
@@ -63,8 +68,8 @@
                                     </tr>
                                 {% endfor %}
                             </tbody>
-                        {% endif %}
-                    </table>
+                        </table>
+                    {% endif %}
                 </div>
                 
             {% endif %}
