@@ -80,7 +80,7 @@ class Algorithms():
 
         # Obtengo las oraciones que tengan la palabra 'teléfono', 'número' o 'móvil. Si las tienen las analizo mas adelante.
         sentences_map    = map(
-            lambda sentence: sentence if sentence.text.lower().find('teléfono') != -1 or 
+            lambda sentence: sentence if sentence.text.lower().find('teléfono') != -1 or
                                         sentence.text.lower().find('número')    != -1 or 
                                         sentence.text.lower().find('móvil')     != -1 else None, 
             self.doc.sents)
@@ -92,8 +92,7 @@ class Algorithms():
         if  0 < len(sentences_filter) <= 1:
             for token in sentences_filter[0]:
                 if token.like_num and len(token.text) == 9:
-                    if token.text not in reasons:
-                        reasons.append(token.text)
+                    reasons.append(token.text)
 
         # Se se han encontrado mas, se encuentran correlaciones entre las oraciones i e i+1 y se analizan ambas si su ratio de relacion es mayor o igual que 0.4
         # Este indice se ha obtenido a partir de pruebas.
@@ -106,16 +105,15 @@ class Algorithms():
                     for doc in docs:
                         for token in doc:
                             if token.like_num and len(token.text) == 9:
-                                if token.text not in reasons:
-                                    reasons.append(token.text)
+                                reasons.append(token.text)
                 i += 1
 
         # Si no cumple con la pauta, se devuelve una posible corección
         correccion = []
         if len(reasons) > 0:
             for reason in reasons:
-                correccion.append(f'{reason[0:2]}-{reason[2:5]}-{reason[5:7]}-{reason[7:9]}')
-        
+                correccion.append(f'{reason[0:3]}-{reason[3:5]}-{reason[5:7]}-{reason[7:9]}')
+
         return len(reasons) == 0, reasons, correccion
 
     def validador_tercera_pauta(self):
@@ -130,7 +128,6 @@ class Algorithms():
         mapping = dict()
         for match_id, start, end in matches:
             mapping[match_id] = self.doc[start:end].text
-            print(mapping[match_id])
 
         result, correccion = [], []
         for _, case in enumerate(tokens):
@@ -164,14 +161,6 @@ class Algorithms():
         self.matcher.remove('PATRONES_CUARTA_PAUTA')
         
         return len(reason) == 0, reason
-
-    def print_all_tokens(self):
-        for token in self.doc:
-            print('+ ------------------------------------------- +')
-            print('Token: {} - pos: {} - dep: {} - morph: {}'.format(token.text, token.pos_, token.dep_, token.morph))
-            print('pos definition: {}'.format(spacy.explain(token.pos_)))
-            print('definicion de dependencia: {}'.format(spacy.explain(token.dep_)))
-            print('+ ------------------------------------------- +\n')
     
     # Recibe como parametros: matcher, doc, i, matches
     def eliminar_elementos_repetidos(self, matcher, doc, i, matches):
