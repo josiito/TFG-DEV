@@ -29,7 +29,6 @@ DESCRIPCIONES = [
     "2 - Los numeros de telefono se deberian separar por bloques",
     "3 - Evitar escribir la hora en formato 24h",
     "4 - Evitar el uso de conectores complejos entre oraciones",
-    "Analisis completo del documento"
 ]
 
 class ComprobarPrimeraPauta(APIView):
