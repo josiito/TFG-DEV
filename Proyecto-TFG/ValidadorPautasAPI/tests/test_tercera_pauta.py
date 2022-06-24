@@ -1,5 +1,5 @@
 from django.test import TestCase
-from os import path, remove
+from os import path, remove, sep
 from ..algorithms import Algorithms
 
 class TestTerceraPauta(TestCase):
@@ -15,11 +15,11 @@ class TestTerceraPauta(TestCase):
 
     def setUp(self):
         """ Se crea un fichero txt con los casos prueba formateados """
-        remove(f'{self.PATH}/res/NumTlf.txt') if path.exists(f'{self.PATH}/res/NumTlf.txt') else None
+        remove(f'{self.PATH}{sep}res{sep}NumTlf.txt') if path.exists(f'{self.PATH}{sep}res{sep}NumTlf.txt') else None
 
         try:
-            file_horas    = open(f'{self.PATH}/data/ExportacionCORPESHoras.txt', mode='r', encoding='UTF-8')
-            file_to_write = open(f'{self.PATH}/res/horas.txt' , mode='w', newline='', encoding='UTF-8')
+            file_horas    = open(f'{self.PATH}{sep}data{sep}tercera_pauta{sep}ExportacionCORPESHoras.txt', mode='r', encoding='UTF-8')
+            file_to_write = open(f'{self.PATH}{sep}res{sep}horas.txt' , mode='w', newline='', encoding='UTF-8')
 
             is_text, num_lines = False, 0
             for line in file_horas:
@@ -41,7 +41,7 @@ class TestTerceraPauta(TestCase):
     def get_line(self, test_index):
         text = ""
         try:
-            textfile = open(f'{self.PATH}/res/horas.txt', mode='r', encoding='UTF-8')
+            textfile = open(f'{self.PATH}{sep}res{sep}horas.txt', mode='r', encoding='UTF-8')
             for line in textfile:
                 splitter = line.split('+--+')
                 if int(splitter[0]) == test_index:
@@ -59,7 +59,7 @@ class TestTerceraPauta(TestCase):
     def get_correct_line(self, test_index):
         passed, reason, correction = False, [], []
         try:
-            textfile = open(f'{self.PATH}/res/ResultadosHoras.txt', mode='r', encoding='UTF-8')
+            textfile = open(f'{self.PATH}{sep}res{sep}ResultadosHoras.txt', mode='r', encoding='UTF-8')
             for line in textfile:
                 splitter = line.split(';')
                 if int(splitter[0]) == test_index:
