@@ -9,49 +9,20 @@ class Algorithms():
     ]
 
     # ------------------------------------------------ #
-    # Patrones de la tercera pauta
     PATRON_HORA_SIMPLE = [
         [ 
             { 'POS': { 'IN': [ 'NOUN', 'NUM' ] }, 'MORPH': { 'IS_SUBSET': [ 'NumForm=Digit', 'NumType=Card', 'AdvType=Tim' ] } } 
         ], # ej: a las 20:45
     ]
-    # Patron que identifica frases como: 10 minutos despues/antes de las 12 [ y media/cuarto/diez de la  ]
     PATRON_HORA_COMPLEX = [
-        [ { 'LOWER': 'a', 'OP': '?' }, { 'LOWER': 'las' }, { 'POS': 'NUM' }, { 'LOWER': 'de' }, { 'LOWER': 'la' }, { 'DEP': 'nmod' } ], # ej: a las seis de la tarde
-        [ { 'POS': 'ADV' }, { 'LOWER': 'de' }, { 'LOWER': 'las' }, { 'POS': 'NUM' }, { 'LOWER': 'de' }, { 'LOWER': 'la' }, { 'DEP': 'nmod' } ], # ej: después de las seis/6 de la tarde
-        [ { 'POS': 'NUM' }, { 'LOWER': 'minutos' }, { 'POS': 'ADV' }, { 'LOWER': 'de' }, { 'LOWER': 'las' }, { 'POS': 'NUM' } ], # ej: 10 minutos despues/antes de las 11
-        [ { 'POS': 'DET' }, { 'POS': 'NUM' }, { 'POS': { 'IN': [ 'ADP', 'ADV' ] } }, { 'DEP': 'nmod' } ], # ej: las seis en punto
-        [ { 'POS': 'DET' }, { 'POS': 'NUM' }, { 'POS': { 'IN': [ 'ADP', 'ADV' ] } }, { 'POS': 'NUM' } ], # ej: las seis menos veinte
-        [ { 'POS': 'DET' }, { 'POS': 'NUM' }, { 'POS': 'CCONJ' }, { 'POS': 'NUM' }, { 'LEMMA': 'minuto', 'OP': '?' } ], # ej: las seis y un minuto
-        # [
-        #     # las seis y veinticinco (cuarenta y) un minuto
-        #     { 'POS': 'DET' }, { 'POS': 'NUM' }, { 'POS': 'CCONJ' }, 
-        #     { 'POS': 'ADJ' }, { 'POS': 'CCONJ' },
-        #     { 'POS': 'NUM' }, { 'POS': 'CCONJ' }, { 'LEMMA': 'minuto', 'OP': '?' } 
-        # ]
-    ]
-    PATRON_HORA_COMPLEX_1 = [
-        [
-            { 'POS': 'NUM'  }, # ej: cualquier numero (serian los minutos)
-            { 'LEMMA': 'minuto',  'OP': '?' }, # ej: minutos
-            { 'POS': 'ADV', 'DEP': 'advmod' }, # ej: despues o antes
-            { 'ORTH': 'de'  },
-            { 'ORTH': 'las' },
-            { 'POS': 'NUM'  }, # ej: cualquier numero (serian las horas)
-        ],
-        [
-            { 'POS': 'NUM'  }, # ej: cualquier numero (serian los minutos)
-            { 'LEMMA': 'minuto',  'OP': '?' }, # ej: minutos
-            { 'POS': 'ADV', 'DEP': 'advmod' }, # ej: despues o antes
-            { 'ORTH': 'de'  },
-            { 'ORTH': 'las' },
-            { 'POS': 'NUM'  }, # ej: cualquier numero (serian las horas)
-            { 'ORTH': 'y', 'OP': '?'    }, # puede aparecer o no
-            { 'POS': 'NUM', 'OP': '?'   }, # ej: (y) media, cuarto o diez 
-            { 'LEMMA': 'de', 'OP': '?'  },
-            { 'ORTH': 'la', 'OP': '?'   },
-            { 'POS': 'NOUN', 'DEP': 'nmod', 'OP': '?' }, # ej: mañana, tarde o
-        ]
+        [ 
+            { 'POS': 'ADV' }, { 'LOWER': 'de' }, { 'LOWER': 'las' }, { 'POS': 'NUM' }, 
+            { 'LOWER': 'de' }, { 'LOWER': 'la' }, { 'DEP': 'nmod' }
+        ], # ej: después de las seis/6 de la tarde
+        [ 
+            { 'POS': 'NUM' }, { 'LEMMA': 'minuto' }, { 'POS': 'ADV' }, 
+            { 'LOWER': 'de' }, { 'LOWER': 'las' }, { 'POS': 'NUM' } 
+        ], # ej: 10 minutos despues/antes de las 11
     ]
     # ------------------------------------------------ #
     # Patrones cuarta pauta
@@ -175,15 +146,10 @@ class Algorithms():
         matches = self.matcher(self.doc)
         tokens  = [ self.doc[start:end] for _, start, end in matches ]
 
-        print(tokens)
-        
-        mapping = dict()
-        for match_id, start, end in matches:
-            mapping[match_id] = self.doc[start:end].text
-
         result, correccion = [], []
         for _, case in enumerate(tokens):
-            if len( formato := case.text.split(':') ) == 2:
+            if len( formato := case.text.split(':') ) == 2 and \
+                '.' not in case.text:
                 # En este caso la hora esta escrito en formato 12h y no 24h
                 if ( int(formato[0]) - 12 ) <= 0:
                     pass
@@ -218,13 +184,3 @@ class Algorithms():
         self.matcher.remove('CONECTORES_ORDENACION_PATRON')
         
         return len(reason) == 0, reason
-    
-    def eliminar_repetidos(self, lista_a ,lista_b) -> list:
-        lista_res = []
-        for item in lista_a:
-            for item_rep in lista_b:
-                if item in item_rep:
-                    continue
-                else:
-                    lista_res.append(item)
-        return lista_res
