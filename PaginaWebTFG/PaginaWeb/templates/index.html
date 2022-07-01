@@ -9,28 +9,29 @@
         {% csrf_token %}
 
         <!-- Botones para elegir la forma en la que se va a pasar el texto -->
-        <label for="s-documento">Voy adjuntar un documento (pdf o txt)</label>
+        <label for="s-documento">Adjuntar documento (*.txt)</label>
         <input id="s-documento" type="radio" value="documento" name="forma" checked>
 
-        <label for="s-texto">Quiero escribir el texto</label>
+        <label for="s-texto">Escribir texto</label>
         <input id="s-texto" type="radio" value="texto" name="forma">
 
         <br>
 
         <!-- Input dinamico. Por JS cambia a type = [texarea, file] dependiendo de la opcion -->
-        <label id="label-doc-text" for="td-field">Documento a analizar (pdf o txt):</label>
+        <label id="label-doc-text" for="td-field">Adjuntar documento (*.txt):</label>
         <input id="input-doc-text" type="file" name="td-field" accept="text/plain">
         <textarea name="td-field" id="textarea-text" placeholder="Coloca aqui el texto que quieras analizar" 
-            cols="100" rows="15" style="resize: none;"></textarea>
+            cols="100" rows="15" style="resize: none;">
+        </textarea>
 
         <br>
 
         <label for="lista-de-pautas">&iquest;Que pauta quiere comprobar&quest;</label>
         <select name="lista-de-pautas" id="pautas">
-            <option value="0">Primera pauta</option>
-            <option value="1">Segunda pauta</option>
-            <option value="2">Tercera pauta</option>
-            <option value="3">Cuarta pauta</option>
+            <option value="0">Palabras de contenido indeterminado</option>
+            <option value="1">Numeros de telefono</option>
+            <option value="2">Formato de la hora</option>
+            <option value="3">Conectores complejos</option>
         </select>
 
         <br>
